@@ -1424,6 +1424,5 @@ path('chai/<int:chai_id>/', views.chai_detail, name='chai_detail')
 - **Field Choices**: For limited options (like tea types), use `choices` parameter
 - **Admin Interface**: Register models to easily manage data
 
-Task - Add Pricing on for each detail
+**Task - Add Pricing on for each detail**
 
-## ## Lec 7
