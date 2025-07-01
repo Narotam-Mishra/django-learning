@@ -15,7 +15,7 @@ Major companies like Instagram, Pinterest, and Mozilla use Django, demonstrating
 
 ## Lec 2 - Start a Django project and file structure (22:57)
 
-### [Django](https://www.djangoproject.com/) - Django is a high-level Python web framework that encourages rapid development and clean, pragmatic design.
+- [Django](https://www.djangoproject.com/) - Django is a high-level Python web framework that encourages rapid development and clean, pragmatic design.
 
 ### Creating a Virtual Environment in Python Using `uv`
 
@@ -1425,3 +1425,5 @@ path('chai/<int:chai_id>/', views.chai_detail, name='chai_detail')
 - **Admin Interface**: Register models to easily manage data
 
 Task - Add Pricing on for each detail
+
+## ## Lec 7
