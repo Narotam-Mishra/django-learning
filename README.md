@@ -994,3 +994,434 @@ For detailed commands, refer to the [Django-Tailwind docs](https://django-tailwi
 
 - **Command to create super user** - `python manage.py createsuperuser`, after running this command provide all necessary details like username, email address (we can skip this) and password
 
+## Lec 6 - Handle model and urls in Django (52:25)
+
+In case if we forgot admin password then we can reset that password by running command - `python manage.py changepassword <user_name>`, where `<user_name>` is actual username that we assigned while creating credentials 
+
+---
+
+### **1. Django Models & Database Interaction**
+- **Purpose of Models**:  
+  - Define database tables as Python classes (e.g., `TeaVariety`).  
+  - Each class attribute represents a database field (e.g., `name`, `image`, `date_added`).  
+
+- **Key Commands**:  
+  - `python manage.py makemigrations`: Generates migration files from model changes.  
+  - `python manage.py migrate`: Applies migrations to the database.  
+
+- **Database Flexibility**:  
+  - Django ORM supports SQLite (default), PostgreSQL, MySQL, etc.  
+  - Switch databases by updating `DATABASES` in `settings.py` (no code changes needed).  
+
+---
+
+### **2. Model Fields & Configuration**
+#### **Common Field Types**:
+1. **CharField**:  
+   - For text (e.g., `name = models.CharField(max_length=100)`).  
+2. **ImageField**:  
+   - Requires `Pillow` library (`pip install Pillow`).  
+   - Configure upload path (e.g., `upload_to='tea_images/'`).  
+3. **DateTimeField**:  
+   - Auto-populate with `timezone.now()` (import `from django.utils import timezone`).  
+4. **Choice Fields**:  
+   - Use `choices` with predefined tuples (e.g., for tea types):  
+     ```python
+     TEA_TYPES = [
+         ('ML', 'Masala'),
+         ('GR', 'Ginger'),
+         ('PL', 'Plain'),
+     ]
+     tea_type = models.CharField(max_length=2, choices=TEA_TYPES)
+     ```
+
+#### **Field Options**:
+- `max_length`: Limits text length (e.g., `max_length=100`).  
+- `default`: Sets default values (e.g., `default=timezone.now`).  
+- `upload_to`: Specifies directory for file uploads (e.g., `upload_to='tea_images/'`).  
+
+---
+
+### **3. Handling Images**
+- **Dependencies**:  
+  - Install Pillow: `pip install Pillow`.  
+- **Configuration**:  
+  - Add to `settings.py`:  
+    ```python
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    ```  
+  - Update `urls.py` to serve media files in development:  
+    ```python
+    from django.conf import settings
+    from django.conf.urls.static import static
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    ```
+
+---
+
+### **4. Timezone Handling**
+- **Usage**:  
+  - Import Django’s timezone: `from django.utils import timezone`.  
+  - Auto-set fields: `date_added = models.DateTimeField(default=timezone.now)`.  
+
+---
+
+### **5. Admin Panel Integration**
+- **Register Models**:  
+  - In `admin.py`, register models to display them in the admin panel:  
+    ```python
+    from .models import TeaVariety
+    admin.site.register(TeaVariety)
+    ```  
+- **Superuser**:  
+  - Create via `python manage.py createsuperuser`.  
+  - Access admin at `/admin`.  
+
+---
+
+### **6. Project Structure**
+- **Apps vs. Projects**:  
+  - **Project**: Contains global settings (`settings.py`, `urls.py`).  
+  - **App**: Modular components (e.g., `tea` app with `models.py`, `admin.py`).  
+- **Best Practices**:  
+  - Define models in apps (not the project root).  
+  - Use microservices architecture for scalability.  
+
+---
+
+### **7. Key Takeaways**
+- **ORM Advantage**: No raw SQL needed; database-agnostic.  
+- **Migrations**: Track and apply schema changes seamlessly.  
+- **Admin Panel**: Auto-generated CRUD interfaces for models.  
+- **Flexibility**: Easily switch fields/databases without rewriting logic.  
+
+---
+
+### **1. Installing Pillow for Image Handling**
+- **Purpose**: Required for `ImageField` in Django models.  
+- **Command**:  
+  ```bash
+  pip install Pillow
+  ```
+  - Ensure `Pillow` is spelled with a capital `P`.  
+- **Verification**: Run the server (`python manage.py runserver`) to confirm no errors.
+
+---
+
+### **2. Configuring Media Files in Django**
+#### **Step 1: Update `settings.py`**
+Add these lines to handle uploaded media files (e.g., images):  
+```python
+# settings.py
+MEDIA_URL = '/media/'  # URL prefix for media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local directory to store files
+```
+- **Key Points**:  
+  - `MEDIA_URL`: Defines the base URL for serving media (e.g., `http://example.com/media/`).  
+  - `MEDIA_ROOT`: Absolute filesystem path to the directory where files are stored (e.g., `project_root/media/`).  
+  - Ensure `os` is imported (`import os`) at the top of `settings.py`.
+
+#### **Step 2: Update `urls.py`**
+Modify the project’s main `urls.py` to serve media files during development:  
+```python
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    # Your existing URL patterns...
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+- **Why?**:  
+  - Django doesn’t serve media files in production (use a web server like Nginx/Apache).  
+  - This configuration enables local development file serving.
+
+---
+
+### **3. Model Setup for Image Uploads**
+Example model with an `ImageField`:  
+```python
+from django.db import models
+
+class TeaVariety(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='tea_images/')  # Files saved to `media/tea_images/`
+    date_added = models.DateTimeField(auto_now_add=True)
+```
+- **Key Fields**:  
+  - `ImageField`: Requires `Pillow`. Specify `upload_to` to define the subdirectory within `MEDIA_ROOT`.  
+  - `auto_now_add`: Automatically sets the field to the current datetime when created.
+
+---
+
+### **4. Steps to Enable Media Handling**
+1. **Install Pillow**: As shown above.  
+2. **Configure Settings**: Add `MEDIA_URL` and `MEDIA_ROOT` to `settings.py`.  
+3. **Update URLs**: Modify `urls.py` to include `static()` for media files.  
+4. **Run Migrations**:  
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+5. **Test Uploads**: Use the Django admin panel or a form to upload images. Files will appear in `media/tea_images/`.
+
+---
+
+### **5. Important Notes**
+- **Development vs. Production**:  
+  - **Development**: Django serves media files via `urls.py` configuration.  
+  - **Production**: Use a web server (e.g., Nginx) to serve media files; Django only handles paths.  
+- **Common Pitfalls**:  
+  - Misspelling `Pillow` (must be capitalized).  
+  - Forgetting to add `+ static(...)` in `urls.py`.  
+  - Not creating the `media` directory manually (Django won’t create it automatically).
+
+---
+
+### **6. Summary of Key Commands**
+```bash
+# Install Pillow
+pip install Pillow
+
+# Apply model changes
+python manage.py makemigrations
+python manage.py migrate
+
+# Run server
+python manage.py runserver
+```
+
+---
+
+### **Next Steps**
+- **Admin Panel**: Register the model in `admin.py` to manage uploads via Django admin.  
+- **Forms**: Create forms for frontend image uploads.  
+- **Validation**: Add validation for file types/sizes in models or forms.
+
+
+### Django Model Concepts:
+1. **Model Creation**:
+   - Define models in `models.py` to create database tables
+   - Example: `ChaiVarity` model with fields (CharField, ImageField, DateTimeField)
+   - Use `choices` parameter for limited selection options
+
+2. **Model Fields**:
+   - `CharField` for text
+   - `ImageField` for file uploads (requires Pillow)
+   - `DateTimeField` with `auto_now_add` for timestamps
+
+3. **String Representation**:
+   - Add `__str__` method to models for better admin interface display
+   ```python
+   def __str__(self):
+       return self.name
+   ```
+
+### Database Migration Process:
+1. **Two-Step Migration**:
+   - `python manage.py makemigrations` - Creates migration files
+   - `python manage.py migrate` - Applies migrations to database
+
+2. **Migration Files**:
+   - Generated in `migrations/` folder
+   - Contain SQL commands Django will execute
+   - Auto-generated based on model definitions
+
+### Django Admin Interface:
+1. **Admin Registration**:
+   - Register models in `admin.py`:
+   ```python
+   from django.contrib import admin
+   from .models import ModelName
+   admin.site.register(ModelName)
+   ```
+
+2. **Admin Features**:
+   - Auto-generated CRUD interface
+   - Displays all model fields
+   - Handles file uploads automatically
+
+### Media Files Configuration:
+1. **Settings.py**:
+   ```python
+   MEDIA_URL = '/media/'
+   MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Not as list
+   ```
+
+2. **URL Configuration**:
+   ```python
+   from django.conf import settings
+   from django.conf.urls.static import static
+   
+   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+   ```
+
+### Important Notes:
+1. **Pillow Requirement**:
+   - Must install Pillow for ImageField: `pip install pillow`
+
+2. **Directory Structure**:
+   - Create `media/` directory at project root
+   - Subdirectories should match `upload_to` parameter
+
+3. **Best Practices**:
+   - Always create migrations per app when working on specific features
+   - Use `__str__` methods for better object representation
+   - Never define `MEDIA_ROOT` as a list (common error)
+
+4. **Workflow**:
+   - Create model → Make migrations → Migrate → Register in admin → Test in admin interface
+
+Here's a concise summary of the key Django concepts from your tutorial:
+
+### Django Template Rendering:
+1. **Passing Data to Templates**:
+   - Retrieve data using ORM: `ChaiVariety.objects.all()`
+   - Pass to template via context dictionary:
+   ```python
+   def view_name(request):
+       chai = ChaiVariety.objects.all()
+       return render(request, 'template.html', {'chai': chai})
+   ```
+
+2. **Template Looping**:
+   - Use `{% for %}` loop to iterate through queryset:
+   ```html
+   {% for item in chai %}
+       {{ item.name }}
+       <img src="{{ item.image.url }}" alt="{{ item.name }}">
+   {% endfor %}
+   ```
+
+### Django ORM Basics:
+1. **Common Query Methods**:
+   - `.all()` - Get all records
+   - `.get()` - Get single record
+   - `.filter()` - Filter records
+   - `.exclude()` - Exclude records
+
+2. **Field Access**:
+   - Access model fields directly: `item.name`, `item.type`
+   - For ImageField: use `.url` property: `item.image.url`
+
+### Template Structure:
+1. **Template Inheritance**:
+   - Use `{% extends 'base.html' %}`
+   - Define blocks: `{% block content %} {% endblock %}`
+
+2. **Template Tags**:
+   - `{% for %} {% endfor %}` - Looping
+   - `{% if %} {% endif %}` - Conditionals
+   - `{% url 'name' %}` - URL reversing
+
+### Frontend Integration:
+1. **Displaying Data**:
+   - Access all passed variables in template
+   - Use dot notation for model fields
+
+2. **Styling with Tailwind**:
+   - Example grid styling:
+   ```html
+   <div class="grid grid-cols-3 gap-4 m-4">
+       {% for item in chai %}
+       <div class="bg-blue-500 p-4 rounded shadow">
+           {{ item.name }}
+       </div>
+       {% endfor %}
+   </div>
+   ```
+
+### Important Notes:
+1. **Image Handling**:
+   - Ensure `MEDIA_URL` and `MEDIA_ROOT` are properly configured
+   - Always use `.url` for image paths in templates
+   - Files are stored in `media/myapps/` as per `upload_to` parameter
+
+2. **Workflow**:
+   - Get data in view → Pass to template → Loop through in template → Display with styling
+   - For buttons/links: use `<a>` tags with proper URL routing
+
+3. **Common Patterns**:
+   - Always check if data exists before looping
+   - Use template filters for formatting (`|date`, `|lower`, etc.)
+   - Keep business logic in views, presentation in templates
+
+### 1. Adding New Model Fields
+- **Process**:
+  - Add field in `models.py` (e.g., `description = models.TextField(default="")`)
+  - Create migrations: `python manage.py makemigrations`
+  - Apply migrations: `python manage.py migrate`
+
+- **Important Notes**:
+  - Use `default` or `null=True` for existing data
+  - TextField is better for long descriptions vs CharField
+
+### 2. Detail View Implementation
+- **View Creation**:
+```python
+from django.shortcuts import get_object_or_404
+
+def chai_detail(request, chai_id):
+    chai = get_object_or_404(ChaiVariety, pk=chai_id)
+    return render(request, 'chai/chai_detail.html', {'chai': chai})
+```
+
+- **Key Methods**:
+  - `get_object_or_404()`: Safely retrieves object or returns 404
+  - Primary key (`pk`) is automatically created by Django
+
+### 3. URL Configuration
+```python
+# urls.py
+path('chai/<int:chai_id>/', views.chai_detail, name='chai_detail')
+```
+
+- **Pattern**:
+  - `<int:chai_id>` captures integer URL parameter
+  - Name attribute enables reverse URL lookups
+
+### 4. Template Implementation
+- **Detail Template**:
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ chai.name }}</h1>
+  <p>{{ chai.description }}</p>
+  <img src="{{ chai.image.url }}" alt="{{ chai.name }}">
+{% endblock %}
+```
+
+- **Dynamic URL Generation**:
+```html
+<!-- In list view -->
+<a href="{% url 'chai_detail' chai.id %}">View Details</a>
+```
+
+### 5. Key Concepts
+1. **Model-View-Template Flow**:
+   - Model defines data structure
+   - View processes requests and fetches data
+   - Template displays data
+
+2. **Database Operations**:
+   - Always create migrations after model changes
+   - Use ORM methods like `.all()`, `.get()`, `.filter()`
+
+3. **Error Handling**:
+   - `get_object_or_404` prevents server errors for missing objects
+   - Always validate URL parameters
+
+4. **Frontend Integration**:
+   - Use template tags (`{% %}`) for logic
+   - Access model fields directly in templates
+   - For images: always use `.url` property
+
+### 6. Best Practices
+- **URL Naming**: Always name URLs for easy reference
+- **Template Organization**: Use base templates and inheritance
+- **Field Choices**: For limited options (like tea types), use `choices` parameter
+- **Admin Interface**: Register models to easily manage data
+
+Task - Add Pricing on for each detail
