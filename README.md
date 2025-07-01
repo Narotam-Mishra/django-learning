@@ -3,15 +3,15 @@
 
 ## Lec-1 : Intro (9:17)
 
-##### Django is a high-level Python web framework that enables rapid development of secure, scalable web applications. It follows the "batteries included" philosophy, providing built-in solutions for common web development tasks.
+Django is a high-level Python web framework that enables rapid development of secure, scalable web applications. It follows the "batteries included" philosophy, providing built-in solutions for common web development tasks.
 
-##### Django is popular because it offers an excellent balance of power and simplicity. Its Object-Relational Mapping (ORM) system handles database operations without writing SQL, while its admin interface provides automatic content management. The framework includes robust security features like protection against SQL injection, cross-site scripting, and CSRF attacks by default.
+Django is popular because it offers an excellent balance of power and simplicity. Its Object-Relational Mapping (ORM) system handles database operations without writing SQL, while its admin interface provides automatic content management. The framework includes robust security features like protection against SQL injection, cross-site scripting, and CSRF attacks by default.
 
-##### The framework's "don't repeat yourself" (DRY) principle and Model-View-Template (MVT) architecture promote clean, maintainable code. Django's extensive documentation, large community, and rich ecosystem of third-party packages make it accessible for beginners yet powerful enough for complex applications.
+The framework's "don't repeat yourself" (DRY) principle and Model-View-Template (MVT) architecture promote clean, maintainable code. Django's extensive documentation, large community, and rich ecosystem of third-party packages make it accessible for beginners yet powerful enough for complex applications.
 
-##### Major companies like Instagram, Pinterest, and Mozilla use Django, demonstrating its capability to handle high-traffic applications. Its versatility allows developers to build everything from simple blogs to complex enterprise applications quickly and efficiently.
+Major companies like Instagram, Pinterest, and Mozilla use Django, demonstrating its capability to handle high-traffic applications. Its versatility allows developers to build everything from simple blogs to complex enterprise applications quickly and efficiently.
 
-#### Django Version - 5.2.3 
+### Django Version - 5.2.3 
 
 ## Lec 2 - Start a Django project and file structure (22:57)
 
