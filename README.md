@@ -786,13 +786,14 @@ This approach keeps code **DRY (Don’t Repeat Yourself)** and scalable. 🚀
 
 ## Lec 5 - How to add tailwind in Django and super user (32:45)
 
-### command to genrate `requirements.txt` file :- `pip freeze > requirements.txt`
+### Important commands
+- **Command to genrate `requirements.txt` file** :- `pip freeze > requirements.txt`
 
-### command to install tailwind dependencies (using pip) :- `pip install 'django-tailwind[reload]'`
+- **Command to install tailwind dependencies (using pip)** :- `pip install 'django-tailwind[reload]'`
 
-### Command to initialize tailwind in Django project (from root directory of project run this command) :- `python manage.py tailwind init`
+- **Command to initialize tailwind in Django project (from root directory of project run this command)** :- `python manage.py tailwind init`
 
-### Command to install tailwind (using manage.py) :- `python manage.py tailwind install`
+- **Command to install tailwind (using manage.py)** :- `python manage.py tailwind install`
 
 ### 1. **Virtual Environment Setup**  
    - Activated using `source venv/bin/activate` (Mac/Linux).  
@@ -849,11 +850,12 @@ This approach keeps code **DRY (Don’t Repeat Yourself)** and scalable. 🚀
 
 For full details, refer to the [Django-Tailwind docs](https://django-tailwind.readthedocs.io/).
 
-### command to start tailwind - `python manage.py tailwind start`
+### Useful commands
+- **Command to start tailwind** - `python manage.py tailwind start`
 
-### command to start tailwind (for production app) - `python manage.py tailwind build`
+- **Command to start tailwind (for production app)** - `python manage.py tailwind build`
 
-### To make hot reloading accessing for tailwind, we need to add `'django_browser_reload'` within `INSTALLED_APPS` and `django_browser_reload.middleware.BrowserReloadMiddleware` within `MIDDLEWARE` in `settings.py` along with this also add `path("__reload__/", include("django_browser_reload.urls")),` in the end of `urlpatterns` within `urls.py` (from root directory)
+- **To make hot reloading accessing for tailwind**, we need to add `'django_browser_reload'` within `INSTALLED_APPS` and `django_browser_reload.middleware.BrowserReloadMiddleware` within `MIDDLEWARE` in `settings.py` along with this also add `path("__reload__/", include("django_browser_reload.urls")),` in the end of `urlpatterns` within `urls.py` (from root directory)
 
 - Note - We must add `path("__reload__/", include("django_browser_reload.urls"))` in the end of `urlpatterns` within `urls.py` (from root directory)
 
@@ -987,7 +989,8 @@ For detailed commands, refer to the [Django-Tailwind docs](https://django-tailwi
 - **Passwords**: Use strong passwords in production (bypass only for local testing).
 - **Admin Customization**: Leverage Django’s built-in templates to save time.
 
-### Command to run migration for DB - `python manage.py migrate`
+### Important Commands
+- **Command to run migration for DB** - `python manage.py migrate`
 
-### Command to create super user - `python manage.py createsuperuser`, after running this command provide all necessary details like username, email address (we can skip this) and password
+- **Command to create super user** - `python manage.py createsuperuser`, after running this command provide all necessary details like username, email address (we can skip this) and password
 
