@@ -1426,4 +1426,230 @@ path('chai/<int:chai_id>/', views.chai_detail, name='chai_detail')
 
 **Task - Add Pricing on for each detail** - Completed
 
-## Lec 7
+## Lec 7 - Django Relationship models (38:52)
+
+The keyword "CASCADE" is used to automatically update or delete related records in other tables when a record is changed in a parent table:-
+1. Cascade on Delete:- When a record is deleted from a parent table, related records in child tables are also deleted.
+2. Cascade on Update:- When a record is updated in a parent table, the update is also applied to related records in child tables.
+
+---
+
+### **1. Types of Database Relationships in Django**
+#### **a. One-to-Many (ForeignKey)**
+- **Definition**: A single record in one model (e.g., `Chai`) can relate to multiple records in another model (e.g., `Review`).
+- **Example**:  
+  - One `Chai` can have multiple `Review`s, but a `Review` belongs to only one `Chai`.
+- **Implementation**:  
+  ```python
+  from django.db import models
+  from django.contrib.auth.models import User
+
+  class Review(models.Model):
+      chai = models.ForeignKey(ChaiVariety, on_delete=models.CASCADE, related_name='reviews')
+      user = models.ForeignKey(User, on_delete=models.CASCADE)
+      rating = models.IntegerField()
+      comment = models.TextField()
+      date_added = models.DateTimeField(default=timezone.now)
+  ```
+  - **Key Points**:
+    - `on_delete=models.CASCADE`: Deletes reviews if the referenced `Chai` or `User` is deleted.
+    - `related_name`: Allows accessing reviews via `chai.reviews.all()`.
+
+#### **b. Many-to-Many (ManyToManyField)**
+- **Definition**: Records in both models can relate to multiple records in the other model.
+- **Example**:  
+  - A `Chai` can be available in multiple `Store`s, and a `Store` can have multiple `Chai` varieties.
+- **Implementation**:  
+  ```python
+  class Store(models.Model):
+      name = models.CharField(max_length=100)
+      location = models.CharField(max_length=100)
+      chai_varieties = models.ManyToManyField(ChaiVariety, related_name='stores')
+  ```
+  - **Key Points**:
+    - No `on_delete` needed (handled automatically).
+    - `related_name`: Access stores via `chai.stores.all()` or chai varieties via `store.chai_varieties.all()`.
+
+#### **c. One-to-One (OneToOneField)**
+- **Definition**: A record in one model relates to exactly one record in another model.
+- **Example**:  
+  - One `Chai` has exactly one `Certificate`, and vice versa.
+- **Implementation**:  
+  ```python
+  class Certificate(models.Model):
+      chai = models.OneToOneField(ChaiVariety, on_delete=models.CASCADE, related_name='certificate')
+      certificate_number = models.CharField(max_length=100)
+      issued_date = models.DateTimeField(default=timezone.now)
+      valid_until = models.DateTimeField()
+  ```
+  - **Key Points**:
+    - Ensures uniqueness (e.g., no two certificates for the same `Chai`).
+
+---
+
+### **2. Common Model Fields**
+- **`CharField`**: For short text (e.g., `name`, `location`).
+- **`TextField`**: For long text (e.g., `comment`).
+- **`IntegerField`**: For numeric values (e.g., `rating`).
+- **`DateTimeField`**: For timestamps (e.g., `date_added`, `issued_date`).
+  - `default=timezone.now`: Auto-sets the current time.
+- **`ForeignKey`/`OneToOneField`/`ManyToManyField`**: Define relationships.
+
+---
+
+### **3. Django’s Built-in User Model**
+- **Usage**:  
+  ```python
+  from django.contrib.auth.models import User
+  ```
+- **Integration**:  
+  - Use `User` as a foreign key (e.g., for reviews to track who wrote them).
+
+---
+
+### **4. Model Methods**
+- **`__str__` Method**:  
+  Improves readability in Django admin/console.
+  ```python
+  def __str__(self):
+      return f"Review by {self.user.username} for {self.chai.name}"
+  ```
+
+---
+
+### **5. Admin Interface Benefits**
+- **Automated UI**:  
+  - Django admin automatically generates forms for relationship management (e.g., dropdowns for `ForeignKey`, checkboxes for `ManyToManyField`).
+- **No Manual Joins**:  
+  - Use `related_name` to navigate relationships without writing SQL.
+
+---
+
+### **6. Key Takeaways**
+1. **Relationships**:
+   - **One-to-Many**: `ForeignKey` (with `on_delete` rules).
+   - **Many-to-Many**: `ManyToManyField` (simplifies intermediate tables).
+   - **One-to-One**: `OneToOneField` (enforces uniqueness).
+2. **Fields**: Choose based on data type (text, number, date).
+3. **User Model**: Built-in for authentication; extend if needed.
+4. **Admin**: Leverage auto-generated UIs for CRUD operations.
+
+---
+
+### **Example Workflow**
+1. Define models with fields and relationships.
+2. Run `python manage.py makemigrations` and `migrate`.
+3. Register models in `admin.py` to manage them via Django admin.
+
+---
+
+### **1. Django Admin Customization Workflow**
+1. **After Migrations**  
+   - Run `python manage.py migrate` to apply model changes to the database.  
+   - **Issue**: Admin panel won’t reflect models until registered in `admin.py`.
+
+2. **Registering Models**  
+   - Basic registration:  
+     ```python
+     from django.contrib import admin
+     from .models import TeaVariety, TeaReview, Store, TeaCertificate
+     admin.site.register(TeaVariety)
+     ```
+   - **Problem**: Limited customization (default list views, no inline editing).
+
+---
+
+### **2. Advanced Admin Customization**
+#### **A. `ModelAdmin` Class**
+- **Purpose**: Control how models appear in the admin.  
+- **Key Attributes**:  
+  - `list_display`: Fields to show in the list view (must be a tuple, e.g., `('name', 'type', 'date_added')`).  
+  - `list_display_links`: Make fields clickable for editing.  
+  - `filter_horizontal`: Adds a user-friendly widget for many-to-many fields (e.g., `tea_varieties` in `Store`).  
+    ```python
+    class StoreAdmin(admin.ModelAdmin):
+        filter_horizontal = ('tea_varieties',)
+    ```
+
+#### **B. `TabularInline` for Related Models**
+- **Use Case**: Edit child models (e.g., `TeaReview`) within the parent model (e.g., `TeaVariety`).  
+- **Implementation**:  
+  ```python
+  class TeaReviewInline(admin.TabularInline):
+      model = TeaReview
+      extra = 2  # Number of empty forms displayed
+  class TeaVarietyAdmin(admin.ModelAdmin):
+      inlines = [TeaReviewInline]
+  ```
+- **Effect**: Shows reviews inline when adding/editing a tea variety.
+
+---
+
+### **3. Debugging Admin Issues**
+#### **Common Errors & Fixes**
+1. **`list_display` Typos**  
+   - Fields must match model attributes.  
+   - **Fix**: Verify field names in the model.
+
+2. **Missing Commas in Tuples**  
+   - Even single-field tuples need a comma: `('name',)`.
+
+3. **Many-to-Many Field Errors**  
+   - **Example**: `TeaVarieties is not a field of Store` → Check `related_name` in models.  
+   - **Debug Steps**:  
+     - Validate model relationships.  
+     - Restart server after changes.
+
+---
+
+### **4. Key Features Demonstrated**
+1. **Dynamic Form Rendering**  
+   - `extra = 2` in `TabularInline` shows 2 empty review forms by default.
+
+2. **Filtering & Search**  
+   - `filter_horizontal` simplifies managing M2M relationships (e.g., linking teas to stores).
+
+3. **Real-World Debugging**  
+   - Example: Uncommenting `filter_horizontal` revealed model misconfigurations.  
+   - **Lesson**: Debugging is iterative—check logs, model fields, and admin registrations.
+
+---
+
+### **5. Example Code Snippets**
+#### **Full `admin.py` Example**
+```python
+from django.contrib import admin
+from .models import TeaVariety, TeaReview, Store, TeaCertificate
+
+# Inline for TeaReview
+class TeaReviewInline(admin.TabularInline):
+    model = TeaReview
+    extra = 2
+
+# Custom Admin for TeaVariety
+@admin.register(TeaVariety)
+class TeaVarietyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'type', 'date_added')
+    inlines = [TeaReviewInline]
+
+# Custom Admin for Store
+@admin.register(Store)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location')
+    filter_horizontal = ('tea_varieties',)
+
+# Basic Admin for TeaCertificate
+@admin.register(TeaCertificate)
+class TeaCertificateAdmin(admin.ModelAdmin):
+    list_display = ('tea', 'certificate_number')
+```
+
+---
+
+### **Key Takeaways**
+1. **Admin Power**: Customize list views, forms, and filters via `ModelAdmin`.  
+2. **Inlines**: Streamline editing related models (e.g., reviews with teas).  
+3. **M2M Fields**: Use `filter_horizontal` for better UX.  
+4. **Debugging**: Expect typos and model mismatches—validate fields and relationships.  
+
+**Pro Tip**: Explore Django’s `list_filter`, `search_fields`, and `prepopulated_fields` for further customization.
