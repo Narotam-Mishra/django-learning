@@ -2,7 +2,18 @@
 
 {% block content %}
 test content for forms
-<form method="POST" action="">
-    {{ form }}
+<form method="POST" action="" class="text-red-500">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Search Store</button>
 </form>
+
+{% if stores %}
+   <ul>
+      {% for store in stores  %}
+         <li>{{ store.name }} - {{ store.location }}</li>
+      {% endfor %}
+   </ul>
+{% endif %}
+
 {% endblock  %}
